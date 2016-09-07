@@ -1,6 +1,7 @@
 import java.util.Scanner;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.List;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -63,36 +64,24 @@ public class XORencrypt {
     public static void analyze(String fpath, String bins) {
         int N = Integer.parseInt(bins);  
 
-        // Load encrypted message from file
         String encrypted = readFile(fpath);
         ArrayList<String> buckets = new ArrayList<String>(0);
         ArrayList<String> common = new ArrayList<String>(0);
         ArrayList<String> decrypted = new ArrayList<String>(0);  // common characters xor-ed with " " => probably in the key
 
-        // Split the encrypted message into N bins (the length of the password)
-        int start_index = 0;
-        int end_index = encrypted.length() / N;
-        System.out.println(encrypted.length());
-        System.out.println(N);
-        System.out.println(end_index);
-        while (end_index < encrypted.length()) {
-            buckets.add(encrypted.substring(start_index, end_index));
-            start_index += N;
-            end_index += N;
-        }
+        // 13 most common characters in written English
+        List<String> freq_chars = Arrays.asList(" ", "e", "t", "a", "o", "i", "n", "s", "h", "r", "d", "l", "u");
 
-        // Determine the most common (encrypted) character in each bucket
-        for (int i=0; i<buckets.size(); i++) {
-            common.add( mostCommon(buckets.get(i)) );
-        }
+        common = freqAnalysis(encrypted, N);
         System.out.println(common);
 
         // xor each most common character with " " to get a character in the key
-        for (int j=0; j<common.size(); j++) {
-            decrypted.add( xorStrings(common.get(j), " ") );
+        for (int i=0; i<common.size(); i++) {
+            decrypted.add( xorStrings(common.get(i), freq_chars.get(i)) );
         }
 
-        // print those characters which are (probably) in the key
+        //// print those characters which are (probably) in the key
+        //System.out.println(common);
         System.out.println(decrypted);
     }
 
@@ -172,5 +161,23 @@ public class XORencrypt {
         encrypted = new String(ebite, encoding);
 
         return encrypted;
+    }
+
+    private static ArrayList<String> freqAnalysis(String s, int N) {
+        // Perform frequency analysis on the given string, returning the N most common characters
+        // The most common characters in written English *should* be (space)-e-t-a-o-i-n-s-h-r-d-l-u.
+        // Thus the most common characters in a (long enough) encrypted message should also correspond to
+        // these characters. 
+
+        ArrayList<String> common = new ArrayList<String>();
+        String nth = "";  // stores nth most common character
+
+        for (int i=0; i<N; i++) {
+            nth = mostCommon(s);
+            common.add(nth);
+            s = s.replace(nth, "");  // remove this common character to find the next most common
+        }
+
+        return common;
     }
 }
