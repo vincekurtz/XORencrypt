@@ -4,7 +4,7 @@ audience you may still find this a useful way to learn about Java. This book is 
 know philosophy. In order to help you learn Java I will start with a Python example and then implement the example
 in Java. Along the way we will examine the strengths, weaknesses and differences between those two languages.
 This book does not attempt to replace the many good Java reference books that are available, in fact I use this in my
-course along with Horstman’s Core Java volumes. Please feel free to use this book for yourself, or if it fits a class you
+course along with Horstman's Core Java volumes. Please feel free to use this book for yourself, or if it fits a class you
 are teaching you are welcome to use this as a resource for your own class.
 I have published this article using a Creative Commons license to encourage you to use it, change it, and modify it for
 your own purposes. I would appreciate knowing what you think if you do use this book, and I would love to see any
