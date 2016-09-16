@@ -65,23 +65,18 @@ public class XORencrypt {
         int N = Integer.parseInt(bins);  
 
         String encrypted = readFile(fpath);
-        ArrayList<String> buckets = new ArrayList<String>(0);
-        ArrayList<String> common = new ArrayList<String>(0);
+        ArrayList<String> common = new ArrayList<String>(0);     // most common character in each bin
         ArrayList<String> decrypted = new ArrayList<String>(0);  // common characters xor-ed with " " => probably in the key
 
-        // 13 most common characters in written English
-        List<String> freq_chars = Arrays.asList(" ", "e", "t", "a", "o", "i", "n", "s", "h", "r", "d", "l", "u");
-
-        common = freqAnalysis(encrypted, N);
+        common = binAnalysis(encrypted, N);
         System.out.println(common);
 
         // xor each most common character with " " to get a character in the key
         for (int i=0; i<common.size(); i++) {
-            decrypted.add( xorStrings(common.get(i), freq_chars.get(i)) );
+            decrypted.add( xorStrings(common.get(i), " ") );
         }
 
-        //// print those characters which are (probably) in the key
-        //System.out.println(common);
+        // print those characters which are (probably) in the key
         System.out.println(decrypted);
     }
 
@@ -161,6 +156,31 @@ public class XORencrypt {
         encrypted = new String(ebite, encoding);
 
         return encrypted;
+    }
+
+    private static ArrayList<String> binAnalysis(String s, int N) {
+        // Break the given string into N bins of (roughly) equal size and return the most
+        // common character in each bin.
+
+        ArrayList<String> substrings = new ArrayList<String>();
+        ArrayList<String> most_common = new ArrayList<String>();
+        int bin_length = s.length() / N;
+
+        // Break the string into bins
+        int start = 0;
+        int end = bin_length;
+        for (int i=0; i<N; i++) {
+            substrings.add(s.substring(start,end));
+            start = start + bin_length;
+            end = end + bin_length;
+        }
+
+        // Find the most common character in each bin
+        for (String substr : substrings) {
+            most_common.add(mostCommon(substr));
+        }
+
+        return most_common;
     }
 
     private static ArrayList<String> freqAnalysis(String s, int N) {
