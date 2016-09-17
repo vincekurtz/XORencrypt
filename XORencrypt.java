@@ -22,6 +22,8 @@ public class XORencrypt {
                 xor(args[1], args[2]);
             } else if (args[0].equals("analyze")) {
                 analyze(args[1], args[2]);
+            } else if (args[0].equals("crack")) {
+                crack(args[1]);
             } else {
                 help();
             }
@@ -39,7 +41,8 @@ public class XORencrypt {
                 + "    help -- get help\n"
                 + "    readTest <filepath> -- cat a file\n"
                 + "    xor <filepath> <cipher> -- XOR text in file with cipher\n"
-                + "    analyze <filepath> <num buckets> -- give character frequencies for text in file for each bucket\n");
+                + "    analyze <filepath> <num buckets> -- give character frequencies for text in file for each bucket\n"
+                + "    crack <filepath> -- attempt to decrypt the given encrypted file\n");
     }
 
     public static void readTest(String fpath) {
@@ -61,7 +64,7 @@ public class XORencrypt {
 
     }
 
-    public static void analyze(String fpath, String bins) {
+    public static ArrayList<String> analyze(String fpath, String bins) {
         int N = Integer.parseInt(bins);  
 
         String encrypted = readFile(fpath);
@@ -77,7 +80,55 @@ public class XORencrypt {
         }
 
         // print those characters which are (probably) in the key
+        System.out.print("\nLikely characters include: ");
         System.out.println(decrypted);
+
+        return decrypted;
+    }
+
+    public static void crack(String fpath) {
+        // Attempt to decrypt a given file with the help of user input
+        
+        // Java type checking requires these to be initialized before catch loops
+        int bins = 0;
+        String pass_guess = "";
+        String decrypted = "";
+        ArrayList<String> likely_chars;
+        String encrypted = readFile(fpath);
+        Scanner reader = new Scanner(System.in);
+
+        // Ask user for number of bins
+        try {
+            System.out.print("How many password characters should I guess? (enter an integer): ");
+            bins = reader.nextInt();
+        }
+        catch (Exception e) {
+            System.out.println("\nError: Bad Input. Bin size must be an integer.");
+            System.exit(0);
+        }
+
+        // Analyze the encrypted message with the given number of bins. 
+        String N = bins + "";   // The analyze method must take bins as a string
+        likely_chars = analyze(fpath, N);
+
+        // Prompt user for password guess
+        try {
+            System.out.print("\nEnter a password guess: ");
+            pass_guess = reader.next();
+        }
+        catch (Exception e) {
+            System.out.println("\nError: Bad Input");
+            System.exit(0);
+        }
+
+        // XOR guessed password with encrypted message
+        System.out.println("\nAttempting decryption...");
+        decrypted = xorStrings(encrypted, pass_guess);
+        
+        // Print result to stdout
+        System.out.println("\n\n------------------------ Begin Decrypted Message -------------------------\n\n");
+        System.out.print(decrypted);
+        System.out.println("\n\n------------------------- End Decrypted Message --------------------------\n\n");
     }
 
     private static String readFile(String fpath) {
