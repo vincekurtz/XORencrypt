@@ -45,7 +45,7 @@ public class XORencrypt {
     public static void readTest(String fpath) {
         // Print the contents of the specified file to stdout
         String contents = readFile(fpath);
-        System.out.println(contents);
+        System.out.print(contents);  // Use print instead of println to avoid adding an extra newline
     }
 
     public static void xor(String fpath, String cipher) {
@@ -57,7 +57,7 @@ public class XORencrypt {
 
         String encrypted = xorStrings(message, cipher);
 
-        System.out.println(encrypted);
+        System.out.print(encrypted);
 
     }
 
@@ -67,9 +67,9 @@ public class XORencrypt {
         String encrypted = readFile(fpath);
         ArrayList<String> common = new ArrayList<String>(0);     // most common character in each bin
         ArrayList<String> decrypted = new ArrayList<String>(0);  // common characters xor-ed with " " => probably in the key
+        ArrayList<String> decrypted2 = new ArrayList<String>(0);  // common characters xor-ed with "t" => probably in the key
 
         common = binAnalysis(encrypted, N);
-        System.out.println(common);
 
         // xor each most common character with " " to get a character in the key
         for (int i=0; i<common.size(); i++) {
@@ -91,7 +91,7 @@ public class XORencrypt {
             System.out.println("ERROR: Something went wrong with file reading.\n");
             e.printStackTrace();
             System.exit(0);
-            return "failed";  // java seems to require something to be returned even here. Is there a more elegant way?
+            return "failed";  // java type checking requires that a string be returned no matter what
         }
     }
 
@@ -164,6 +164,7 @@ public class XORencrypt {
 
         ArrayList<String> substrings = new ArrayList<String>();
         ArrayList<String> most_common = new ArrayList<String>();
+        String temp_common;
         int bin_length = s.length() / N;
 
         // Break the string into bins
@@ -177,7 +178,14 @@ public class XORencrypt {
 
         // Find the most common character in each bin
         for (String substr : substrings) {
-            most_common.add(mostCommon(substr));
+            temp_common = mostCommon(substr);
+
+            // Remove duplicates
+            while (most_common.contains(temp_common)) {
+                substr = substr.replace(mostCommon(substr), "");
+                temp_common = mostCommon(substr);
+            }
+            most_common.add(temp_common);
         }
 
         return most_common;
